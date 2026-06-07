@@ -10,8 +10,10 @@ body[data-pal=blue]   { --a:#38bdf8; --ah:#7dd3fc; --ab:rgba(56,189,248,.08); --
 body[data-pal=amber]  { --a:#f59e0b; --ah:#fcd34d; --ab:rgba(245,158,11,.08); --abr:rgba(245,158,11,.22) }
 body[data-pal=rose]   { --a:#f43f5e; --ah:#fb7185; --ab:rgba(244,63,94,.08);  --abr:rgba(244,63,94,.22) }
 
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0 }
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; min-width: 0 }
 html, body { height: 100%; background: var(--bg0); color: var(--t1); font-family: var(--ff); font-size: 14px; line-height: 1.5 }
+html { overflow-x: hidden }
+body { overflow-x: hidden; max-width: 100vw }
 ::-webkit-scrollbar { width: 4px }
 ::-webkit-scrollbar-track { background: transparent }
 ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px }
@@ -270,8 +272,11 @@ html, body { height: 100%; background: var(--bg0); color: var(--t1); font-family
    RESPONSIVE
 ═══════════════════════════════════════════════════════════════ */
 
-/* ── Tablet / Móvil grande (≤ 768px) ── */
+/* ── Tablet / Móvil (≤ 768px) ── */
 @media (max-width: 768px) {
+
+  /* --- Layout principal --- */
+  .app-wrap { overflow-x: hidden }
 
   /* Sidebar → barra de navegación inferior */
   .sb {
@@ -282,91 +287,98 @@ html, body { height: 100%; background: var(--bg0); color: var(--t1); font-family
     padding: 0 10px;
     border-right: none;
     border-top: 1px solid var(--br);
+    z-index: 200;
   }
   .sb-logo { display: none }
   .sb-nav  { flex-direction: row; flex: 1; justify-content: center; gap: 2px }
   .sb-bot  { flex-direction: row; gap: 2px }
   .uav     { display: none }
 
-  /* Main area: full width + espacio para la barra inferior */
-  .main { margin-left: 0; height: auto; min-height: 100vh; padding-bottom: 60px }
+  /* Main: ancho completo, deja espacio a la barra inferior */
+  .main {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    padding-bottom: 64px;
+    overflow-x: hidden;
+  }
 
-  /* Topbar: título en primera línea, tabs y dots en segunda */
-  .topbar { padding: 10px 14px; gap: 8px; flex-wrap: wrap }
+  /* Topbar: título en fila 1, tabs + dots en fila 2 */
+  .topbar { padding: 10px 14px; gap: 8px; flex-wrap: wrap; width: 100% }
   .tb-t   { flex: none; width: 100% }
-  .ptabs  { order: 1 }
-  .pdots  { order: 2; margin-left: auto }
+  .ptabs  { order: 1; flex-shrink: 0 }
+  .pdots  { order: 2; margin-left: auto; flex-shrink: 0 }
 
   /* Content */
-  .content { padding: 14px 12px }
+  .content { padding: 14px 12px; width: 100%; overflow-x: hidden }
 
-  /* Grids → una o dos columnas */
+  /* Grids: una o dos columnas */
   .kpi-g   { grid-template-columns: repeat(2, 1fr) }
   .dev-g   { grid-template-columns: 1fr }
   .crow    { grid-template-columns: 1fr }
   .crow2   { grid-template-columns: 1fr }
   .dd-kpis { grid-template-columns: repeat(3, 1fr) }
 
-  /* Valores KPI más compactos */
+  /* Valores KPI */
   .k-val  { font-size: 20px }
   .dd-val { font-size: 16px }
 
-  /* Tablas con scroll horizontal */
-  .tbl-wrap       { overflow-x: auto; -webkit-overflow-scrolling: touch }
-  .tbl            { min-width: 500px }
-  .adm-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch }
-  .adm-table      { min-width: 540px }
-  .adm-wrap       { padding: 14px }
+  /* Tablas: scroll horizontal interno, sin que desborde la página */
+  .tbl-wrap       { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100% }
+  .adm-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100% }
+  .adm-wrap       { padding: 14px; width: 100% }
 
-  /* Heatmap con scroll horizontal */
-  .hmap-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch }
-  .hmap-inner  { min-width: 560px }
+  /* Heatmap: scroll horizontal interno */
+  .hmap-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100% }
+  .hmap-inner  { min-width: 540px }
 
-  /* Modales full-width */
+  /* Modales: 95% del viewport */
   .modal      { width: 95vw; max-width: none; padding: 20px }
   .help-modal { width: 95vw; max-width: none }
 
-  /* Menú desplegable de DataTable no se sale de pantalla */
+  /* Menú de columnas: no se sale por la derecha */
   .dt-menu { right: 0; left: auto }
 
   /* Admin header: apilar verticalmente */
-  .adm-header { flex-direction: column; gap: 10px }
+  .adm-header   { flex-direction: column; gap: 10px }
   .adm-save-btn { align-self: flex-start }
 }
 
 /* ── Móvil pequeño (≤ 480px) ── */
 @media (max-width: 480px) {
 
-  /* KPI 2×2 */
+  /* KPIs 2 columnas */
   .kpi-g   { grid-template-columns: repeat(2, 1fr); gap: 8px }
   .dd-kpis { grid-template-columns: repeat(2, 1fr); gap: 8px }
 
-  /* Ocultar palette dots (se cambia desde Configuración) */
+  /* Ocultar palette dots — se cambia desde Configuración */
   .pdots { display: none }
 
   /* Topbar compacto */
-  .topbar { padding: 8px 12px }
-  .tb-t h2 { font-size: 13px }
-  .tb-t p  { display: none }
-  .pt { padding: 5px 9px; font-size: 11px }
+  .topbar     { padding: 8px 10px }
+  .tb-t h2   { font-size: 13px }
+  .tb-t p    { display: none }
+  .pt        { padding: 5px 8px; font-size: 11px }
 
-  /* Cards con menos padding */
+  /* Cards */
   .dc { padding: 12px }
   .cc { padding: 12px }
 
-  /* Dev tabs más compactos */
+  /* Dev tabs */
   .dtabs { gap: 4px }
   .dtab  { padding: 6px 10px; font-size: 12px }
 
-  /* Valores KPI */
+  /* KPI values */
   .k-val  { font-size: 18px }
-  .dd-val { font-size: 15px }
+  .dd-val { font-size: 14px }
 
-  /* Botones de tabla menores */
-  .tbl-head { flex-wrap: wrap; gap: 8px }
-  .tbl th, .tbl td { padding: 8px 12px; font-size: 11px }
+  /* Tabla cabecera: wrap en 2 líneas */
+  .tbl-head { flex-wrap: wrap; gap: 6px }
+  .tbl th, .tbl td { padding: 8px 10px; font-size: 11px }
 
-  /* Help modal: cuerpo con menos padding */
-  .help-body { padding: 16px }
-  .h-table td, .h-table th { padding: 6px 8px }
+  /* Help modal */
+  .help-body { padding: 14px }
+  .h-table td, .h-table th { padding: 5px 7px; font-size: 11px }
 }
