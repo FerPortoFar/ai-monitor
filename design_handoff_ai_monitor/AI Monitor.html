@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --a:#22c55e;--ah:#4ade80;--ab:rgba(34,197,94,.08);--abr:rgba(34,197,94,.22);
+  --bg0:#060c14;--bg1:#0c1522;--bg2:#121e30;--bg3:#1a2840;
+  --t1:#eef4ff;--t2:#7d95b0;--t3:#3d5268;
+  --br:rgba(255,255,255,.05);--r:12px;--rs:8px;
+  --ff:'Space Grotesk',sans-serif;--fm:'JetBrains Mono',monospace
+}
+body[data-pal=indigo]{--a:#6366f1;--ah:#818cf8;--ab:rgba(99,102,241,.08);--abr:rgba(99,102,241,.22)}
+body[data-pal=blue]{--a:#38bdf8;--ah:#7dd3fc;--ab:rgba(56,189,248,.08);--abr:rgba(56,189,248,.22)}
+body[data-pal=amber]{--a:#f59e0b;--ah:#fcd34d;--ab:rgba(245,158,11,.08);--abr:rgba(245,158,11,.22)}
+body[data-pal=rose]{--a:#f43f5e;--ah:#fb7185;--ab:rgba(244,63,94,.08);--abr:rgba(244,63,94,.22)}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:var(--ff);font-size:14px;line-height:1.5}
+
+/* ── LOGIN ── */
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;overflow:hidden}
+#login::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 48px),
+             repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 48px)}
+.lglow{position:absolute;width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,var(--ab) 0%,transparent 62%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.lcard{position:relative;z-index:1;width:420px;background:var(--bg1);border:1px solid var(--br);border-top:1px solid var(--abr);border-radius:var(--r);padding:48px 40px;box-shadow:0 40px 100px rgba(0,0,0,.6);animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.llogo{display:flex;align-items:center;gap:12px;margin-bottom:36px}
+.llogo-i{width:44px;height:44px;background:var(--ab);border:1px solid var(--abr);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--a)}
+.llogo-t h1{font-size:18px;font-weight:700;letter-spacing:-.4px}
+.llogo-t p{font-size:11px;color:var(--t2);margin-top:2px}
+.lcard h2{font-size:22px;font-weight:600;margin-bottom:4px}
+.lcard > p{color:var(--t2);font-size:13px;margin-bottom:28px}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.fg input{width:100%;background:var(--bg2);border:1px solid var(--br);border-radius:var(--rs);padding:11px 14px;color:var(--t1);font-family:var(--ff);font-size:14px;outline:none;transition:border-color .2s,background .2s}
+.fg input:focus{border-color:var(--abr);background:var(--bg3)}
+.fg input::placeholder{color:var(--t3)}
+.btn-pri{width:100%;background:var(--a);color:#000;border:none;border-radius:var(--rs);padding:12px;font-family:var(--ff);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;margin-top:6px}
+.btn-pri:hover{opacity:.88}.btn-pri:active{transform:scale(.98)}
+.lfoot{text-align:center;margin-top:18px;font-size:12px;color:var(--t2)}
+.lfoot a{color:var(--a);text-decoration:none;cursor:pointer}.lfoot a:hover{text-decoration:underline}
+.lerr{background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.25);border-radius:var(--rs);padding:9px 13px;font-size:12px;color:#fca5a5;margin-bottom:14px;display:none}
+
+/* ── APP ── */
+#app{display:none;height:100vh;overflow:hidden}
+.sb{position:fixed;left:0;top:0;bottom:0;width:58px;background:var(--bg1);border-right:1px solid var(--br);display:flex;flex-direction:column;align-items:center;padding:14px 0;z-index:100}
+.sb-logo{width:36px;height:36px;background:var(--ab);border:1px solid var(--abr);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--a);margin-bottom:20px;flex-shrink:0}
+.sb-nav{display:flex;flex-direction:column;gap:4px;flex:1}
+.ib{width:40px;height:40px;border-radius:var(--rs);border:none;background:transparent;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.ib:hover,.ib.on{background:var(--ab);color:var(--a)}
+.sb-bot{display:flex;flex-direction:column;align-items:center;gap:8px}
+.uav{width:32px;height:32px;border-radius:50%;background:var(--ab);border:1px solid var(--abr);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--a);cursor:pointer;user-select:none}
+.main{margin-left:58px;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(6,12,20,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--br);padding:12px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.tb-t{flex:1}
+.tb-t h2{font-size:15px;font-weight:600}
+.tb-t p{font-size:11px;color:var(--t2);margin-top:1px}
+.ptabs{display:flex;background:var(--bg1);border:1px solid var(--br);border-radius:var(--rs);padding:3px;gap:2px}
+.pt{padding:5px 13px;border-radius:6px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.pt.on{background:var(--a);color:#000}
+.pdots{display:flex;gap:6px;align-items:center}
+.pdot{width:15px;height:15px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .15s;flex-shrink:0}
+.pdot:hover{transform:scale(1.25)}.pdot.on{border-color:var(--t1)}
+
+/* ── CONTENT ── */
+.content{padding:20px 24px;flex:1}
+
+.kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.kpi{background:var(--bg1);border:1px solid var(--br);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--a) 0%,transparent 55%);opacity:.6}
+.k-lbl{font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
+.k-val{font-family:var(--fm);font-size:24px;font-weight:600;line-height:1}
+.k-sub{font-size:11px;color:var(--t3);margin-top:5px}
+.k-ico{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--a);opacity:.12}
+
+.dev-g{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.dc{background:var(--bg1);border:1px solid var(--br);border-radius:var(--r);padding:18px;transition:border-color .2s,box-shadow .2s}
+.dc:hover{border-color:var(--abr);box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.dh{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.dav{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.dinf h3{font-size:14px;font-weight:600}
+.dinf p{font-size:11px;color:var(--t2);margin-top:2px}
+.drank{margin-left:auto;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--fm)}
+.tbar{margin-bottom:12px}
+.tbar-lb{display:flex;justify-content:space-between;font-size:10px;color:var(--t2);margin-bottom:4px;font-family:var(--fm)}
+.ttrack{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden;display:flex;gap:1px}
+.ds-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ds-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.ds-v{font-family:var(--fm);font-size:15px;font-weight:600;line-height:1.2}
+
+.crow{display:grid;grid-template-columns:1.8fr 1fr;gap:12px;margin-bottom:14px}
+.crow2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.cc{background:var(--bg1);border:1px solid var(--br);border-radius:var(--r);padding:18px}
+.cc-h{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.cc-tit{font-size:13px;font-weight:600}
+.cc-sub{font-size:10px;color:var(--t2);margin-top:2px}
+.leg{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.leg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t2)}
+.leg-d{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ── MODAL ── */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.ov.open{display:flex}
+.modal{background:var(--bg1);border:1px solid var(--br);border-radius:var(--r);width:480px;max-height:85vh;overflow-y:auto;padding:28px;animation:fadeUp .25s ease both}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.mh h3{font-size:16px;font-weight:600}
+.mx{width:28px;height:28px;border-radius:6px;border:none;background:var(--bg2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1}
+.ms{margin-bottom:22px}
+.ms h4{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--t2);margin-bottom:10px}
+.srow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sav{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.sinp{background:var(--bg2);border:1px solid var(--br);border-radius:var(--rs);padding:8px 12px;color:var(--t1);font-family:var(--ff);font-size:13px;outline:none;transition:border-color .2s;width:100%;display:block}
+.sinp:focus{border-color:var(--abr)}
+.pal-g{display:flex;gap:8px;flex-wrap:wrap}
+.po{width:54px;height:54px;border-radius:10px;cursor:pointer;border:2px solid transparent;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:10px;font-weight:700;text-align:center;line-height:1.2}
+.po:hover{transform:scale(1.06)}.po.on{border-color:#fff}
+.bsave{width:100%;background:var(--a);color:#000;border:none;border-radius:var(--rs);padding:11px;font-family:var(--ff);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:4px}
+.bsave:hover{opacity:.88}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:2px}
+
+/* ── VIEWS ── */
+.view{display:none}.view.on{display:block}
+/* Dev tabs */
+.dtabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.dtab{padding:8px 18px;border-radius:var(--rs);border:1px solid var(--br);background:transparent;color:var(--t2);font-family:var(--ff);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
+.dtab:hover{border-color:var(--abr);color:var(--t1)}
+.dtab.on{background:var(--bg2);border-color:var(--abr);color:var(--t1)}
+.dtab-av{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+/* Dev detail KPIs */
+.dd-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}
+.dd-kpi{background:var(--bg1);border:1px solid var(--br);border-radius:var(--r);padding:14px 16px}
+.dd-lbl{font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.dd-val{font-family:var(--fm);font-size:20px;font-weight:600;line-height:1}
+.dd-sub{font-size:11px;color:var(--t3);margin-top:4px}
+/* Table */
+.tbl-wrap{background:var(--bg1);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.tbl-head{padding:14px 18px;border-bottom:1px solid var(--br);display:flex;justify-content:space-between;align-items:center}
+.tbl-head h3{font-size:13px;font-weight:600}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.7px;padding:10px 18px;border-bottom:1px solid var(--br)}
+.tbl td{padding:10px 18px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.025);color:var(--t1)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+/* Heatmap */
+.hmap-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.hmap-day{font-size:10px;color:var(--t2);width:26px;text-align:right;flex-shrink:0}
+.hmap-cells{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;flex:1}
+.hmap-cell{height:18px;border-radius:2px;cursor:default;transition:opacity .1s}
+.hmap-hours{display:flex;padding-left:32px;margin-top:4px}
+.hmap-hour{flex:1;font-size:9px;color:var(--t3);text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login">
+  <div class="lglow"></div>
+  <div class="lcard">
+    <div class="llogo">
+      <div class="llogo-i">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3.5"/>
+          <circle cx="12" cy="3" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="12" cy="21" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="21" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="5.6" cy="5.6" r="1.3" fill="currentColor" stroke="none"/>
+          <circle cx="18.4" cy="18.4" r="1.3" fill="currentColor" stroke="none"/>
+          <circle cx="5.6" cy="18.4" r="1.3" fill="currentColor" stroke="none"/>
+          <circle cx="18.4" cy="5.6" r="1.3" fill="currentColor" stroke="none"/>
+          <line x1="12" y1="8.5" x2="12" y2="4.5"/><line x1="12" y1="15.5" x2="12" y2="19.5"/>
+          <line x1="8.5" y1="12" x2="4.5" y2="12"/><line x1="15.5" y1="12" x2="19.5" y2="12"/>
+          <line x1="9.2" y1="9.2" x2="6.9" y2="6.9"/><line x1="14.8" y1="14.8" x2="17.1" y2="17.1"/>
+          <line x1="9.2" y1="14.8" x2="6.9" y2="17.1"/><line x1="14.8" y1="9.2" x2="17.1" y2="6.9"/>
+        </svg>
+      </div>
+      <div class="llogo-t">
+        <h1>AI Monitor</h1>
+        <p id="l-sub">Panel de agentes IA</p>
+      </div>
+    </div>
+    <h2>Bienvenido</h2>
+    <p>Inicia sesión para acceder al panel de tu equipo</p>
+    <div class="lerr" id="lerr">Ingresa usuario y contraseña para continuar</div>
+    <div class="fg"><label>Usuario</label><input type="text" id="u-inp" placeholder="usuario@empresa.com" autocomplete="username"></div>
+    <div class="fg"><label>Contraseña</label><input type="password" id="p-inp" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn-pri" onclick="doLogin()">Entrar al panel</button>
+    <div class="lfoot">¿Solo explorar? <a onclick="enterDemo()">Modo demo →</a></div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <!-- Sidebar -->
+  <div class="sb">
+    <div class="sb-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="3.5"/>
+        <line x1="12" y1="8" x2="12" y2="4.5"/><line x1="12" y1="16" x2="12" y2="19.5"/>
+        <line x1="8" y1="12" x2="4.5" y2="12"/><line x1="16" y1="12" x2="19.5" y2="12"/>
+        <line x1="9.5" y1="9.5" x2="7" y2="7"/><line x1="14.5" y1="14.5" x2="17" y2="17"/>
+        <line x1="9.5" y1="14.5" x2="7" y2="17"/><line x1="14.5" y1="9.5" x2="17" y2="7"/>
+      </svg>
+    </div>
+    <div class="sb-nav">
+      <button class="ib on" data-v="vov" title="Overview" onclick="showView('vov',this)">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>
+      </button>
+      <button class="ib" data-v="vdev" title="Desarrolladores" onclick="showView('vdev',this)">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="3"/><path d="M2 17c0-3 2.24-5 5-5s5 2 5 5"/><circle cx="14.5" cy="7.5" r="2.5"/><path d="M17 17c0-2.5-1.3-4-2.5-4"/></svg>
+      </button>
+      <button class="ib" data-v="vact" title="Actividad" onclick="showView('vact',this)">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,15 6,9 9,12 13,7 18,11"/></svg>
+      </button>
+    </div>
+    <div class="sb-bot">
+      <button class="ib" title="Configuración" onclick="openMod()">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.1 4.1l1.8 1.8M14.1 14.1l1.8 1.8M4.1 15.9l1.8-1.8M14.1 5.9l1.8-1.8"/></svg>
+      </button>
+      <div class="uav" id="uav">U</div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-t">
+        <h2 id="tb-title">Monitoreo de Agentes IA</h2>
+        <p id="tb-sub">Esta semana · datos demo</p>
+      </div>
+      <div class="ptabs">
+        <button class="pt" data-p="today" onclick="setPeriod('today',this)">Hoy</button>
+        <button class="pt on" data-p="week" onclick="setPeriod('week',this)">Semana</button>
+        <button class="pt" data-p="month" onclick="setPeriod('month',this)">Mes</button>
+      </div>
+      <div class="pdots">
+        <div class="pdot on" data-pal="green" style="background:#22c55e" onclick="setPal('green')" title="Verde"></div>
+        <div class="pdot" data-pal="indigo" style="background:#6366f1" onclick="setPal('indigo')" title="Índigo"></div>
+        <div class="pdot" data-pal="blue" style="background:#38bdf8" onclick="setPal('blue')" title="Azul"></div>
+        <div class="pdot" data-pal="amber" style="background:#f59e0b" onclick="setPal('amber')" title="Ámbar"></div>
+        <div class="pdot" data-pal="rose" style="background:#f43f5e" onclick="setPal('rose')" title="Rosa"></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- ── OVERVIEW ── -->
+      <div id="vov" class="view on">
+      <!-- KPIs -->
+      <div class="kpi-g">
+        <div class="kpi">
+          <div class="k-lbl">Total Tokens</div>
+          <div class="k-val" id="kv-tok">—</div>
+          <div class="k-sub" id="ks-tok">—</div>
+          <div class="k-ico"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        </div>
+        <div class="kpi">
+          <div class="k-lbl">Costo Estimado</div>
+          <div class="k-val" id="kv-cost">—</div>
+          <div class="k-sub" id="ks-cost">—</div>
+          <div class="k-ico"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M9 8.5c0-1.4 1.3-2 3-2s3 .6 3 2-1.3 2-3 2-3 .6-3 2 1.3 2 3 2 3-.6 3-2" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="kpi">
+          <div class="k-lbl">Total Requests</div>
+          <div class="k-val" id="kv-req">—</div>
+          <div class="k-sub" id="ks-req">—</div>
+          <div class="k-ico"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M3 7h18M3 12h18M3 17h12" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="kpi">
+          <div class="k-lbl">Más Activo</div>
+          <div class="k-val" id="kv-top" style="font-size:17px;font-family:var(--ff)">—</div>
+          <div class="k-sub" id="ks-top">—</div>
+          <div class="k-ico"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Dev Cards -->
+      <div class="dev-g" id="dev-g"></div>
+
+      <!-- Chart row 1 -->
+      <div class="crow">
+        <div class="cc">
+          <div class="cc-h">
+            <div><div class="cc-tit">Actividad en el tiempo</div><div class="cc-sub">Tokens consumidos por período</div></div>
+            <div class="leg" id="leg-act"></div>
+          </div>
+          <div style="position:relative;height:172px"><canvas id="ch-act"></canvas></div>
+        </div>
+        <div class="cc">
+          <div class="cc-h"><div><div class="cc-tit">Tipos de tarea</div><div class="cc-sub">Distribución total del equipo</div></div></div>
+          <div style="position:relative;height:172px"><canvas id="ch-task"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Chart row 2 -->
+      <div class="crow2">
+        <div class="cc">
+          <div class="cc-h">
+            <div><div class="cc-tit">Input vs Output</div><div class="cc-sub">Tokens por desarrollador</div></div>
+            <div class="leg">
+              <div class="leg-i"><div class="leg-d" style="background:#818cf8;opacity:.9"></div>Input</div>
+              <div class="leg-i"><div class="leg-d" style="background:#818cf8;opacity:.4"></div>Output</div>
+            </div>
+          </div>
+          <div style="position:relative;height:172px"><canvas id="ch-toks"></canvas></div>
+        </div>
+        <div class="cc">
+          <div class="cc-h"><div><div class="cc-tit">Modelos utilizados</div><div class="cc-sub">Requests por modelo</div></div></div>
+          <div style="position:relative;height:172px"><canvas id="ch-mods"></canvas></div>
+        </div>
+      </div>
+      </div><!-- /vov -->
+
+      <!-- ── DESARROLLADORES ── -->
+      <div id="vdev" class="view">
+        <div class="dtabs" id="dtabs"></div>
+        <div id="dd"></div>
+      </div>
+
+      <!-- ── ACTIVIDAD ── -->
+      <div id="vact" class="view">
+        <div class="crow" style="margin-bottom:14px">
+          <div class="cc">
+            <div class="cc-h">
+              <div><div class="cc-tit">Actividad por hora &mdash; equipo</div><div class="cc-sub">Tokens por hora del día (hoy)</div></div>
+              <div class="leg" id="leg-hr"></div>
+            </div>
+            <div style="position:relative;height:180px"><canvas id="ch-hr"></canvas></div>
+          </div>
+          <div class="cc">
+            <div class="cc-h"><div><div class="cc-tit">Participación por dev</div><div class="cc-sub">% del total de tokens</div></div></div>
+            <div style="position:relative;height:180px"><canvas id="ch-dpie"></canvas></div>
+          </div>
+        </div>
+        <div class="cc" style="margin-bottom:14px">
+          <div class="cc-h">
+            <div><div class="cc-tit">Mapa de calor &mdash; semana actual</div><div class="cc-sub">Actividad por hora y día de la semana</div></div>
+            <div class="leg" style="align-items:center">
+              <span style="font-size:10px;color:var(--t3)">Bajo</span>
+              <div style="width:50px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--bg3),var(--a));margin:0 6px"></div>
+              <span style="font-size:10px;color:var(--t3)">Alto</span>
+            </div>
+          </div>
+          <div id="hmap"></div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-head"><h3>Registro de sesiones</h3><span style="font-size:11px;color:var(--t2)">Últimas 20 actividades</span></div>
+          <table class="tbl">
+            <thead><tr><th>Hora</th><th>Desarrollador</th><th>Tarea</th><th>Modelo</th><th>Input</th><th>Output</th><th>Costo</th></tr></thead>
+            <tbody id="sess-tb"></tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══ SETTINGS MODAL ═══ -->
+<div class="ov" id="sov" onclick="if(event.target===this)closeMod()">
+  <div class="modal">
+    <div class="mh"><h3>Configuración</h3><button class="mx" onclick="closeMod()">✕</button></div>
+    <div class="ms">
+      <h4>Nombres de desarrolladores</h4>
+      <div class="srow">
+        <div class="sav" id="sav0" style="background:#818cf818;color:#818cf8">D1</div>
+        <input class="sinp" type="text" id="sd0" placeholder="Desarrollador 1" oninput="prevInit(0,this.value)">
+      </div>
+      <div class="srow">
+        <div class="sav" id="sav1" style="background:#fbbf2418;color:#fbbf24">D2</div>
+        <input class="sinp" type="text" id="sd1" placeholder="Desarrollador 2" oninput="prevInit(1,this.value)">
+      </div>
+      <div class="srow">
+        <div class="sav" id="sav2" style="background:#38bdf818;color:#38bdf8">D3</div>
+        <input class="sinp" type="text" id="sd2" placeholder="Desarrollador 3" oninput="prevInit(2,this.value)">
+      </div>
+    </div>
+    <div class="ms">
+      <h4>Nombre del equipo / sistema</h4>
+      <input class="sinp" type="text" id="s-team" placeholder="Ej: Equipo de Producto">
+    </div>
+    <div class="ms">
+      <h4>Modelo principal de IA</h4>
+      <input class="sinp" type="text" id="s-model" placeholder="Ej: Claude 3.5 Sonnet">
+    </div>
+    <div class="ms">
+      <h4>Paleta de color</h4>
+      <div class="pal-g" id="pal-g"></div>
+    </div>
+    <button class="bsave" onclick="saveSets()">Guardar configuración</button>
+  </div>
+</div>
+
+<script>
+// ═══ CONFIG ═══
+const DC = ['#818cf8','#fbbf24','#38bdf8'];
+const PALS = [
+  {k:'green', n:'Verde',  c:'#22c55e', bg:'#052e16'},
+  {k:'indigo',n:'Índigo', c:'#6366f1', bg:'#1e1b4b'},
+  {k:'blue',  n:'Azul',   c:'#38bdf8', bg:'#082032'},
+  {k:'amber', n:'Ámbar',  c:'#f59e0b', bg:'#2a1800'},
+  {k:'rose',  n:'Rosa',   c:'#f43f5e', bg:'#2c0514'}
+];
+
+let CFG = {};
+try { CFG = JSON.parse(localStorage.getItem('aim-cfg')||'{}'); } catch(e){}
+if(!CFG.devs)  CFG.devs  = ['Desarrollador 1','Desarrollador 2','Desarrollador 3'];
+if(!CFG.team)  CFG.team  = '';
+if(!CFG.model) CFG.model = '';
+if(!CFG.pal)   CFG.pal   = 'green';
+
+let CUR = 'week';
+
+// ═══ DEMO DATA ═══
+const DATA = {
+  today:{
+    lbl:Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}h`),
+    d:[
+      {tok:{i:38400,o:12800},req:24,cost:2.18,tasks:{Código:10,Debug:7,Explicación:4,Revisión:2,Docs:1},act:[0,0,0,0,0,1,3,8,12,15,13,11,9,12,14,11,9,6,4,2,1,0,0,0],mdl:{'Claude 3.5':12,'Haiku':8,'GPT-4o':4}},
+      {tok:{i:19200,o:6800},req:13,cost:1.14,tasks:{Código:5,Debug:3,Explicación:3,Revisión:1,Docs:1},act:[0,0,0,0,0,0,1,4,8,7,6,5,5,7,8,7,5,4,2,1,0,0,0,0],mdl:{'Claude 3.5':6,'Haiku':5,'GPT-4o':2}},
+      {tok:{i:9800,o:3200},req:7,cost:0.58,tasks:{Código:3,Debug:2,Explicación:1,Revisión:1,Docs:0},act:[0,0,0,0,0,0,0,2,4,5,4,3,3,4,5,4,3,2,1,0,0,0,0,0],mdl:{'Claude 3.5':3,'Haiku':3,'GPT-4o':1}}
+    ]
+  },
+  week:{
+    lbl:['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+    d:[
+      {tok:{i:284500,o:97200},req:167,cost:15.82,tasks:{Código:52,Debug:38,Explicación:28,Revisión:22,Docs:27},act:[45000,62000,38000,71000,55000,48000,62700],mdl:{'Claude 3.5':89,'Haiku':64,'GPT-4o':14}},
+      {tok:{i:142000,o:51300},req:89,cost:8.34,tasks:{Código:31,Debug:18,Explicación:22,Revisión:9,Docs:9},act:[22000,28000,19000,35000,31000,28000,30300],mdl:{'Claude 3.5':42,'Haiku':38,'GPT-4o':9}},
+      {tok:{i:67800,o:23400},req:45,cost:3.98,tasks:{Código:18,Debug:8,Explicación:12,Revisión:4,Docs:3},act:[8000,12000,9000,14000,13000,12000,13200],mdl:{'Claude 3.5':22,'Haiku':17,'GPT-4o':6}}
+    ]
+  },
+  month:{
+    lbl:['Sem 1','Sem 2','Sem 3','Sem 4'],
+    d:[
+      {tok:{i:1240000,o:428000},req:714,cost:68.42,tasks:{Código:218,Debug:162,Explicación:124,Revisión:98,Docs:112},act:[285000,312000,298000,345000],mdl:{'Claude 3.5':384,'Haiku':274,'GPT-4o':56}},
+      {tok:{i:621000,o:224000},req:382,cost:36.18,tasks:{Código:132,Debug:78,Explicación:94,Revisión:42,Docs:36},act:[142000,158000,172000,149000],mdl:{'Claude 3.5':182,'Haiku':162,'GPT-4o':38}},
+      {tok:{i:298000,o:102000},req:194,cost:17.14,tasks:{Código:76,Debug:34,Explicación:52,Revisión:18,Docs:14},act:[88000,78000,96000,68000],mdl:{'Claude 3.5':96,'Haiku':74,'GPT-4o':24}}
+    ]
+  }
+};
+
+// ═══ UTILS ═══
+const fT = n => n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n);
+const fC = n => '$'+n.toFixed(2);
+const dn = i => CFG.devs[i]||`Dev ${i+1}`;
+function inits(n){
+  if(!n||!n.trim()) return '??';
+  const p=n.trim().split(/\s+/).filter(Boolean);
+  return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n.slice(0,2).toUpperCase();
+}
+
+// ═══ LOGIN ═══
+function doLogin(){
+  const u=document.getElementById('u-inp').value.trim();
+  const p=document.getElementById('p-inp').value;
+  if(!u||!p){document.getElementById('lerr').style.display='block';return;}
+  document.getElementById('lerr').style.display='none';
+  showApp(u);
+}
+function enterDemo(){ showApp('Demo'); }
+
+document.getElementById('p-inp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('u-inp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function showApp(user){
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('uav').textContent=inits(user).slice(0,2);
+  applyPal(CFG.pal,false);
+  if(CFG.team) document.getElementById('tb-title').textContent=CFG.team;
+  renderAll();
+}
+
+// ═══ PALETTE ═══
+function applyPal(pal,save=true){
+  document.body.setAttribute('data-pal',pal);
+  document.querySelectorAll('.pdot').forEach(d=>d.classList.toggle('on',d.dataset.pal===pal));
+  document.querySelectorAll('.po').forEach(o=>o.classList.toggle('on',o.dataset.pal===pal));
+  CFG.pal=pal;
+  if(save) localStorage.setItem('aim-cfg',JSON.stringify(CFG));
+}
+function setPal(pal){ applyPal(pal); }
+
+// ═══ PERIOD ═══
+function setPeriod(p,el){
+  CUR=p;
+  document.querySelectorAll('.pt').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  const lbl={today:'Hoy · datos demo',week:'Esta semana · datos demo',month:'Este mes · datos demo'};
+  document.getElementById('tb-sub').textContent=lbl[p];
+  if(typeof CURV==='undefined'||CURV==='vov') renderAll();
+  else if(CURV==='vdev') renderDevScreen();
+  else if(CURV==='vact') renderActScreen();
+}
+
+// ═══ RENDER ═══
+function renderAll(){
+  const d=DATA[CUR];
+  renderKPIs(d);
+  renderCards(d);
+  renderCharts(d);
+}
+
+function renderKPIs(d){
+  const tI=d.d.reduce((s,v)=>s+v.tok.i,0);
+  const tO=d.d.reduce((s,v)=>s+v.tok.o,0);
+  const tC=d.d.reduce((s,v)=>s+v.cost,0);
+  const tR=d.d.reduce((s,v)=>s+v.req,0);
+  const topI=d.d.reduce((top,dev,i)=>{const t=dev.tok.i+dev.tok.o;return t>top.t?{t,i}:top;},{t:0,i:0});
+  document.getElementById('kv-tok').textContent=fT(tI+tO);
+  document.getElementById('ks-tok').textContent=`${fT(tI)} entrada · ${fT(tO)} salida`;
+  document.getElementById('kv-cost').textContent=fC(tC);
+  document.getElementById('ks-cost').textContent=`${fC(tC/3)} promedio por dev`;
+  document.getElementById('kv-req').textContent=tR;
+  document.getElementById('ks-req').textContent=`${Math.round(tR/3)} promedio por dev`;
+  document.getElementById('kv-top').textContent=dn(topI.i);
+  document.getElementById('ks-top').textContent=`${fT(topI.t)} tokens totales`;
+}
+
+function renderCards(d){
+  const ranked=d.d.map((dev,i)=>({...dev,i,total:dev.tok.i+dev.tok.o})).sort((a,b)=>b.total-a.total);
+  const rankOf=i=>ranked.findIndex(r=>r.i===i)+1;
+  const RC=['#fbbf24','#94a3b8','#cd8c52'];
+  const RL=['#1','#2','#3'];
+  document.getElementById('dev-g').innerHTML=d.d.map((dev,i)=>{
+    const rank=rankOf(i),name=dn(i),c=DC[i],total=dev.tok.i+dev.tok.o;
+    const inPct=(dev.tok.i/total*100).toFixed(1);
+    const topTask=Object.entries(dev.tasks).sort((a,b)=>b[1]-a[1])[0][0];
+    // sparkline
+    const act=dev.act,mn=Math.min(...act),mx=Math.max(...act),rng=mx-mn||1;
+    const sp=act.map((v,j)=>`${j===0?'M':'L'}${(j/(act.length-1)*100).toFixed(1)},${(26-((v-mn)/rng*22)).toFixed(1)}`).join(' ');
+    return `<div class="dc">
+      <div class="dh">
+        <div class="dav" style="background:${c}18;color:${c}">${inits(name)}</div>
+        <div class="dinf"><h3>${name}</h3><p>${dev.req} req · ${fC(dev.cost)}</p></div>
+        <div class="drank" style="background:${RC[rank-1]}18;color:${RC[rank-1]}">${RL[rank-1]}</div>
+      </div>
+      <div class="tbar">
+        <div class="tbar-lb"><span>↑ ${fT(dev.tok.i)} in</span><span>↓ ${fT(dev.tok.o)} out</span></div>
+        <div class="ttrack">
+          <div style="width:${inPct}%;background:${c};height:100%"></div>
+          <div style="width:${(100-parseFloat(inPct)).toFixed(1)}%;background:${c};opacity:.3;height:100%"></div>
+        </div>
+      </div>
+      <div class="ds-g">
+        <div><div class="ds-l">Tokens</div><div class="ds-v" style="color:${c}">${fT(total)}</div></div>
+        <div><div class="ds-l">Costo</div><div class="ds-v">${fC(dev.cost)}</div></div>
+        <div><div class="ds-l">Tarea top</div><div class="ds-v" style="font-size:13px;font-family:var(--ff)">${topTask}</div></div>
+        <div><div class="ds-l">Requests</div><div class="ds-v">${dev.req}</div></div>
+      </div>
+      <svg viewBox="0 0 100 28" preserveAspectRatio="none" width="100%" height="28" style="overflow:visible">
+        <path d="${sp} L100,28 L0,28 Z" fill="${c}" opacity=".08"/>
+        <path d="${sp}" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>`;
+  }).join('');
+}
+
+// ═══ CHARTS ═══
+let CI={};
+Chart.defaults.color='#7d95b0';
+Chart.defaults.borderColor='rgba(255,255,255,.04)';
+Chart.defaults.font.family="'Space Grotesk',sans-serif";
+const TT={backgroundColor:'#0c1522',borderColor:'rgba(255,255,255,.08)',borderWidth:1,titleColor:'#eef4ff',bodyColor:'#7d95b0',padding:10};
+
+function killCharts(){ Object.values(CI).forEach(c=>c&&c.destroy()); CI={}; }
+
+function renderCharts(d){
+  killCharts();
+  const names=[0,1,2].map(i=>dn(i));
+
+  // task totals
+  const tTot={};
+  d.d.forEach(dev=>Object.entries(dev.tasks).forEach(([k,v])=>{tTot[k]=(tTot[k]||0)+v;}));
+
+  // model totals
+  const mTot={};
+  d.d.forEach(dev=>Object.entries(dev.mdl).forEach(([k,v])=>{mTot[k]=(mTot[k]||0)+v;}));
+
+  // ① Activity line chart
+  CI.act=new Chart(document.getElementById('ch-act'),{
+    type:'line',
+    data:{
+      labels:d.lbl,
+      datasets:d.d.map((dev,i)=>({
+        label:names[i],data:dev.act,
+        borderColor:DC[i],backgroundColor:DC[i]+'12',
+        borderWidth:2,tension:.4,fill:true,
+        pointRadius:2,pointHoverRadius:5,
+        pointBackgroundColor:DC[i],pointBorderWidth:0
+      }))
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.dataset.label}: ${fT(c.parsed.y)}`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{font:{size:10},callback:v=>fT(v)}}
+      }
+    }
+  });
+  document.getElementById('leg-act').innerHTML=names.map((n,i)=>
+    `<div class="leg-i"><div class="leg-d" style="background:${DC[i]}"></div>${n}</div>`
+  ).join('');
+
+  // ② Task types donut
+  const tkKeys=Object.keys(tTot);
+  const tkCols=['#818cf8','#fbbf24','#38bdf8','#34d399','#f87171'];
+  CI.task=new Chart(document.getElementById('ch-task'),{
+    type:'doughnut',
+    data:{labels:tkKeys,datasets:[{data:tkKeys.map(k=>tTot[k]),backgroundColor:tkCols,borderWidth:0,hoverOffset:6}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'70%',
+      plugins:{
+        legend:{position:'right',labels:{font:{size:11},boxWidth:10,boxHeight:10,padding:10,color:'#7d95b0'}},
+        tooltip:{...TT}
+      }
+    }
+  });
+
+  // ③ Token input/output stacked bar
+  CI.toks=new Chart(document.getElementById('ch-toks'),{
+    type:'bar',
+    data:{
+      labels:names,
+      datasets:[
+        {label:'Input',data:d.d.map(v=>v.tok.i),backgroundColor:DC.map(c=>c+'cc'),borderRadius:0,stack:'t'},
+        {label:'Output',data:d.d.map(v=>v.tok.o),backgroundColor:DC.map(c=>c+'44'),borderRadius:4,stack:'t'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.dataset.label}: ${fT(c.parsed.y)}`}}},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},
+        y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{font:{size:10},callback:v=>fT(v)}}
+      }
+    }
+  });
+
+  // ④ Model usage horizontal bar
+  const mKeys=Object.keys(mTot);
+  CI.mods=new Chart(document.getElementById('ch-mods'),{
+    type:'bar',
+    data:{labels:mKeys,datasets:[{data:mKeys.map(k=>mTot[k]),backgroundColor:['#818cf8cc','#fbbf24cc','#38bdf8cc'],borderRadius:4,borderSkipped:false}]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.parsed.x} requests`}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{font:{size:10}}},
+        y:{grid:{display:false},ticks:{font:{size:11}}}
+      }
+    }
+  });
+}
+
+// ═══ SETTINGS MODAL ═══
+function openMod(){
+  [0,1,2].forEach(i=>{
+    const n=CFG.devs[i];
+    document.getElementById(`sd${i}`).value=n;
+    document.getElementById(`sav${i}`).textContent=inits(n);
+  });
+  document.getElementById('s-team').value=CFG.team||'';
+  document.getElementById('s-model').value=CFG.model||'';
+  document.getElementById('pal-g').innerHTML=PALS.map(p=>
+    `<div class="po ${CFG.pal===p.k?'on':''}" data-pal="${p.k}" style="background:${p.bg};color:${p.c}" onclick="palFromMod('${p.k}',this)">${p.n}</div>`
+  ).join('');
+  document.getElementById('sov').classList.add('open');
+}
+function palFromMod(pal,el){
+  document.querySelectorAll('.po').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  applyPal(pal,true);
+}
+function closeMod(){ document.getElementById('sov').classList.remove('open'); }
+function prevInit(i,val){
+  document.getElementById(`sav${i}`).textContent=inits(val||`Dev ${i+1}`);
+}
+function saveSets(){
+  [0,1,2].forEach(i=>{
+    const v=document.getElementById(`sd${i}`).value.trim();
+    CFG.devs[i]=v||`Desarrollador ${i+1}`;
+  });
+  CFG.team=document.getElementById('s-team').value.trim();
+  CFG.model=document.getElementById('s-model').value.trim();
+  localStorage.setItem('aim-cfg',JSON.stringify(CFG));
+  if(CFG.team) document.getElementById('tb-title').textContent=CFG.team;
+  closeMod();
+  renderAll();
+}
+
+// ═══ SESSIONS DATA ═══
+const SESS=[
+  {ts:'17:42',dev:0,task:'Código',mdl:'Claude 3.5',ti:3240,to:1120,c:0.22},
+  {ts:'17:28',dev:1,task:'Debug',mdl:'Haiku',ti:1840,to:560,c:0.06},
+  {ts:'17:15',dev:0,task:'Revisión',mdl:'Claude 3.5',ti:2100,to:840,c:0.16},
+  {ts:'16:58',dev:2,task:'Explicación',mdl:'Claude 3.5',ti:4200,to:1680,c:0.32},
+  {ts:'16:44',dev:0,task:'Código',mdl:'Claude 3.5',ti:5600,to:1900,c:0.42},
+  {ts:'16:32',dev:1,task:'Docs',mdl:'Haiku',ti:920,to:380,c:0.03},
+  {ts:'16:18',dev:2,task:'Debug',mdl:'GPT-4o',ti:1560,to:480,c:0.08},
+  {ts:'16:05',dev:0,task:'Código',mdl:'Claude 3.5',ti:7840,to:2640,c:0.58},
+  {ts:'15:52',dev:1,task:'Explicación',mdl:'Claude 3.5',ti:3120,to:1040,c:0.24},
+  {ts:'15:38',dev:0,task:'Debug',mdl:'Haiku',ti:2200,to:720,c:0.08},
+  {ts:'15:24',dev:2,task:'Código',mdl:'Claude 3.5',ti:4800,to:1560,c:0.36},
+  {ts:'15:10',dev:1,task:'Revisión',mdl:'Claude 3.5',ti:1840,to:620,c:0.14},
+  {ts:'14:55',dev:0,task:'Código',mdl:'GPT-4o',ti:3600,to:1200,c:0.18},
+  {ts:'14:42',dev:2,task:'Docs',mdl:'Haiku',ti:1100,to:440,c:0.04},
+  {ts:'14:28',dev:0,task:'Explicación',mdl:'Claude 3.5',ti:2800,to:940,c:0.20},
+  {ts:'14:15',dev:1,task:'Código',mdl:'Claude 3.5',ti:6200,to:2100,c:0.48},
+  {ts:'14:02',dev:2,task:'Debug',mdl:'Haiku',ti:1680,to:520,c:0.05},
+  {ts:'13:48',dev:0,task:'Código',mdl:'Claude 3.5',ti:8900,to:3100,c:0.72},
+  {ts:'13:35',dev:1,task:'Explicación',mdl:'Haiku',ti:2400,to:820,c:0.07},
+  {ts:'13:22',dev:0,task:'Revisión',mdl:'Claude 3.5',ti:3100,to:1040,c:0.23}
+];
+const TASK_COLS={'Código':'#818cf8','Debug':'#f87171','Explicación':'#38bdf8','Revisión':'#fbbf24','Docs':'#34d399'};
+const HMAP=[
+  {day:'Lun',v:[0,0,0,0,0,1,4,9,13,16,14,12,10,13,15,12,10,7,4,2,1,0,0,0]},
+  {day:'Mar',v:[0,0,0,0,0,2,5,12,16,20,17,14,12,16,19,15,12,8,5,2,1,0,0,0]},
+  {day:'Mié',v:[0,0,0,0,0,1,3,7,10,13,11,9,8,10,12,10,8,5,3,1,0,0,0,0]},
+  {day:'Jue',v:[0,0,0,0,0,2,6,14,20,24,22,18,15,19,22,18,14,10,6,3,1,0,0,0]},
+  {day:'Vie',v:[0,0,0,0,0,1,4,10,15,18,16,13,11,15,17,14,11,8,5,2,1,0,0,0]},
+  {day:'Sáb',v:[0,0,0,0,0,0,2,6,8,10,8,7,6,8,9,7,6,4,2,1,0,0,0,0]},
+  {day:'Dom',v:[0,0,0,0,0,0,1,3,5,6,5,4,4,5,6,5,4,3,1,0,0,0,0,0]}
+];
+
+// ═══ VIEW SWITCHING ═══
+let CURV='vov', CURD=0;
+function showView(v,el){
+  CURV=v;
+  document.querySelectorAll('.view').forEach(d=>d.classList.remove('on'));
+  document.getElementById(v).classList.add('on');
+  document.querySelectorAll('.sb-nav .ib').forEach(b=>b.classList.remove('on'));
+  if(el) el.classList.add('on');
+  if(v==='vdev') renderDevScreen();
+  if(v==='vact') renderActScreen();
+}
+
+// ═══ DEVELOPER SCREEN ═══
+function renderDevScreen(){
+  const d=DATA[CUR];
+  document.getElementById('dtabs').innerHTML=[0,1,2].map(i=>{
+    const name=dn(i),c=DC[i];
+    return `<button class="dtab ${i===CURD?'on':''}" onclick="selectDev(${i})">
+      <div class="dtab-av" style="background:${c}18;color:${c}">${inits(name)}</div>${name}
+    </button>`;
+  }).join('');
+  renderDevDetail(d);
+}
+function selectDev(i){ CURD=i; document.querySelectorAll('.dtab').forEach((b,j)=>b.classList.toggle('on',j===i)); renderDevDetail(DATA[CUR]); }
+
+function renderDevDetail(d){
+  const dev=d.d[CURD],c=DC[CURD],name=dn(CURD);
+  const total=dev.tok.i+dev.tok.o;
+  const topTask=Object.entries(dev.tasks).sort((a,b)=>b[1]-a[1])[0][0];
+  const topMdl=Object.entries(dev.mdl).sort((a,b)=>b[1]-a[1])[0][0];
+  const ranked=d.d.map((v,i)=>({i,t:v.tok.i+v.tok.o})).sort((a,b)=>b.t-a.t);
+  const rank=ranked.findIndex(r=>r.i===CURD)+1;
+  const RC=['#fbbf24','#94a3b8','#cd8c52'];
+  const myS=SESS.filter(s=>s.dev===CURD);
+
+  document.getElementById('dd').innerHTML=`
+    <div class="dd-kpis">
+      <div class="dd-kpi"><div class="dd-lbl">Tokens input</div><div class="dd-val" style="color:${c}">${fT(dev.tok.i)}</div><div class="dd-sub">Prompts enviados</div></div>
+      <div class="dd-kpi"><div class="dd-lbl">Tokens output</div><div class="dd-val" style="color:${c}">${fT(dev.tok.o)}</div><div class="dd-sub">Respuestas recibidas</div></div>
+      <div class="dd-kpi"><div class="dd-lbl">Costo total</div><div class="dd-val">${fC(dev.cost)}</div><div class="dd-sub">${fC(dev.cost/dev.req)} por request</div></div>
+      <div class="dd-kpi"><div class="dd-lbl">Requests</div><div class="dd-val">${dev.req}</div><div class="dd-sub">${topMdl} más usado</div></div>
+      <div class="dd-kpi"><div class="dd-lbl">Ranking</div><div class="dd-val" style="font-family:var(--ff);color:${RC[rank-1]}">#${rank}</div><div class="dd-sub">Tarea top: ${topTask}</div></div>
+    </div>
+    <div class="crow" style="margin-bottom:14px">
+      <div class="cc">
+        <div class="cc-h"><div><div class="cc-tit">Distribución de tareas</div><div class="cc-sub">Requests por tipo</div></div></div>
+        <div style="position:relative;height:180px"><canvas id="ch-dd-task"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="cc-h"><div><div class="cc-tit">Modelos utilizados</div><div class="cc-sub">Requests por modelo</div></div></div>
+        <div style="position:relative;height:180px"><canvas id="ch-dd-mdl"></canvas></div>
+      </div>
+    </div>
+    <div class="cc" style="margin-bottom:14px">
+      <div class="cc-h"><div><div class="cc-tit">Actividad &mdash; ${name}</div><div class="cc-sub">Tokens a lo largo del tiempo</div></div></div>
+      <div style="position:relative;height:150px"><canvas id="ch-dd-act"></canvas></div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-head"><h3>Sesiones de ${name}</h3><span style="font-size:11px;color:var(--t2)">${myS.length} registros</span></div>
+      <table class="tbl">
+        <thead><tr><th>Hora</th><th>Tarea</th><th>Modelo</th><th>Input</th><th>Output</th><th>Costo</th></tr></thead>
+        <tbody>${myS.map(s=>`<tr>
+          <td style="color:var(--t2);font-family:var(--fm)">${s.ts}</td>
+          <td><span class="tag" style="background:${TASK_COLS[s.task]||'#818cf8'}18;color:${TASK_COLS[s.task]||'#818cf8'}">${s.task}</span></td>
+          <td style="color:var(--t2)">${s.mdl}</td>
+          <td style="font-family:var(--fm)">${fT(s.ti)}</td>
+          <td style="font-family:var(--fm)">${fT(s.to)}</td>
+          <td style="font-family:var(--fm);color:var(--a)">${fC(s.c)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+
+  // Charts
+  ['ch-dd-task','ch-dd-mdl','ch-dd-act'].forEach(id=>{if(CI[id]){CI[id].destroy();delete CI[id];}});
+  const tkKeys=Object.keys(dev.tasks),tkCols=['#818cf8','#fbbf24','#38bdf8','#34d399','#f87171'];
+  CI['ch-dd-task']=new Chart(document.getElementById('ch-dd-task'),{
+    type:'doughnut',
+    data:{labels:tkKeys,datasets:[{data:tkKeys.map(k=>dev.tasks[k]),backgroundColor:tkCols,borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:10,boxHeight:10,padding:10,color:'#7d95b0'}},tooltip:{...TT}}}
+  });
+  const mKeys=Object.keys(dev.mdl);
+  CI['ch-dd-mdl']=new Chart(document.getElementById('ch-dd-mdl'),{
+    type:'bar',
+    data:{labels:mKeys,datasets:[{data:mKeys.map(k=>dev.mdl[k]),backgroundColor:['#818cf8cc','#fbbf24cc','#38bdf8cc'],borderRadius:4,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.parsed.x} requests`}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+  });
+  CI['ch-dd-act']=new Chart(document.getElementById('ch-dd-act'),{
+    type:'line',
+    data:{labels:d.lbl,datasets:[{label:name,data:dev.act,borderColor:c,backgroundColor:c+'12',borderWidth:2.5,tension:.4,fill:true,pointRadius:3,pointHoverRadius:6,pointBackgroundColor:c,pointBorderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${name}: ${fT(ctx.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{font:{size:10},callback:v=>fT(v)}}}}
+  });
+}
+
+// ═══ ACTIVITY SCREEN ═══
+function renderActScreen(){
+  ['ch-hr','ch-dpie'].forEach(id=>{if(CI[id]){CI[id].destroy();delete CI[id];}});
+  const d=DATA[CUR],names=[0,1,2].map(i=>dn(i));
+  const todayD=DATA.today.d;
+
+  CI['ch-hr']=new Chart(document.getElementById('ch-hr'),{
+    type:'line',
+    data:{labels:DATA.today.lbl,datasets:todayD.map((dev,i)=>({label:names[i],data:dev.act,borderColor:DC[i],backgroundColor:DC[i]+'12',borderWidth:2,tension:.4,fill:true,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:DC[i],pointBorderWidth:0}))},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.dataset.label}: ${fT(c.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{font:{size:10},callback:v=>fT(v)}}}}
+  });
+  const lhr=document.getElementById('leg-hr');
+  if(lhr) lhr.innerHTML=names.map((n,i)=>`<div class="leg-i"><div class="leg-d" style="background:${DC[i]}"></div>${n}</div>`).join('');
+
+  const totals=d.d.map(dev=>dev.tok.i+dev.tok.o),grandTotal=totals.reduce((a,b)=>a+b,0);
+  CI['ch-dpie']=new Chart(document.getElementById('ch-dpie'),{
+    type:'doughnut',
+    data:{labels:names,datasets:[{data:totals,backgroundColor:DC.map(c=>c+'cc'),borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:10,boxHeight:10,padding:10,color:'#7d95b0'}},tooltip:{...TT,callbacks:{label:c=>` ${c.label}: ${fT(c.parsed)} (${((c.parsed/grandTotal)*100).toFixed(0)}%)`}}}}
+  });
+
+  // Heatmap
+  const maxV=Math.max(...HMAP.flatMap(r=>r.v));
+  const hmapEl=document.getElementById('hmap');
+  if(hmapEl){
+    const hourLbls=['0h','','','3h','','','6h','','','9h','','','12h','','','15h','','','18h','','','21h','',''];
+    hmapEl.innerHTML=HMAP.map(row=>`
+      <div class="hmap-row">
+        <span class="hmap-day">${row.day}</span>
+        <div class="hmap-cells">${row.v.map(v=>{
+          const bg=v===0?'var(--bg2)':'var(--a)';
+          const op=v===0?1:Math.max(0.12,Math.min(0.95,0.12+(v/maxV)*0.83));
+          const sty=v===0?`background:var(--bg2)`:`background:var(--a);opacity:${op.toFixed(2)}`;
+          return `<div class="hmap-cell" title="${v} actividad" style="${sty}"></div>`;
+        }).join('')}</div>
+      </div>`).join('')+`<div class="hmap-hours">${hourLbls.map(l=>`<div class="hmap-hour">${l}</div>`).join('')}</div>`;
+  }
+
+  // Sessions table
+  const tb=document.getElementById('sess-tb');
+  if(tb) tb.innerHTML=SESS.map(s=>{
+    const name=dn(s.dev),c=DC[s.dev];
+    return `<tr>
+      <td style="color:var(--t2);font-family:var(--fm)">${s.ts}</td>
+      <td><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${c};display:inline-block"></span>${name}</span></td>
+      <td><span class="tag" style="background:${TASK_COLS[s.task]||'#818cf8'}18;color:${TASK_COLS[s.task]||'#818cf8'}">${s.task}</span></td>
+      <td style="color:var(--t2)">${s.mdl}</td>
+      <td style="font-family:var(--fm)">${fT(s.ti)}</td>
+      <td style="font-family:var(--fm)">${fT(s.to)}</td>
+      <td style="font-family:var(--fm);color:var(--a)">${fC(s.c)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══ INIT ═══
+applyPal(CFG.pal,false);
+if(CFG.team) document.getElementById('l-sub').textContent=CFG.team;
+</script>
+</body>
+</html>

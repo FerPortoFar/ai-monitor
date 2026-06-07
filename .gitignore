@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+*.log
+ai-monitor/server/data/stats/
+ai-monitor/server/data/sessions/
+ai-monitor/server/data/agents.json
+ai-monitor-agent/agent.config.json
+ai-monitor-agent/dist/

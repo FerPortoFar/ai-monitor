@@ -1,0 +1,16 @@
+{
+  "name": "ai-monitor-agent",
+  "version": "1.0.0",
+  "description": "Agente de monitoreo AI Monitor — sube stats de Claude Code al servidor",
+  "main": "agent.js",
+  "scripts": {
+    "start":     "node agent.js",
+    "install":   "node install-task.js",
+    "uninstall": "node uninstall-task.js",
+    "build":     "pkg agent.js --targets node18-win-x64 --output dist/agent.exe"
+  },
+  "pkg": {
+    "targets": ["node18-win-x64"],
+    "outputPath": "dist"
+  }
+}
