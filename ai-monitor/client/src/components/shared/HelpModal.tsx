@@ -21,6 +21,14 @@ export default function HelpModal({ onClose }: Props) {
             <h2>¿Qué es AI Monitor?</h2>
             <p>AI Monitor es un dashboard que centraliza el consumo de agentes IA (Claude Code) de todos los desarrolladores del equipo. Muestra cuántos tokens se usaron, cuánto costó, qué tipo de tareas se realizaron y qué tan activo y eficiente es cada dev.</p>
             <div className="h-tip">
+              <strong>URL pública:</strong>{' '}
+              <a href="https://gracious-liberation-production-43da.up.railway.app" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--a)', textDecoration: 'none' }}>
+                gracious-liberation-production-43da.up.railway.app
+              </a>
+              <br />
+              <span style={{ marginTop: 4, display: 'block' }}><strong>Demo:</strong> clic en "Modo demo →" · <strong>Login:</strong> usuario <code style={{ background: 'var(--bg2)', padding: '1px 5px', borderRadius: 4, fontFamily: 'var(--fm)' }}>MonitorIA</code> / contraseña <code style={{ background: 'var(--bg2)', padding: '1px 5px', borderRadius: 4, fontFamily: 'var(--fm)' }}>MIA</code> + año + (mes + 1)</span>
+            </div>
+            <div className="h-tip" style={{ marginTop: 8 }}>
               <strong>Dato clave:</strong> los datos llegan automáticamente desde el agente instalado en cada máquina, sin que el dev tenga que hacer nada.
             </div>
           </section>
