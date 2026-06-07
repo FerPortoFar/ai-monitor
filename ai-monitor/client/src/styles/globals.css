@@ -238,3 +238,135 @@ html, body { height: 100%; background: var(--bg0); color: var(--t1); font-family
 
 /* ── CROW FULL WIDTH ── */
 .crow-full { display: block; margin-bottom: 14px }
+
+/* ── HELP MODAL ── */
+.help-modal { background: var(--bg1); border: 1px solid var(--br); border-radius: var(--r); width: 720px; max-width: 96vw; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 40px 80px rgba(0,0,0,.6) }
+.help-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--br); flex-shrink: 0 }
+.help-header h3 { font-size: 14px; font-weight: 600; color: var(--t1); margin: 0 }
+.help-body { overflow-y: auto; padding: 24px 26px; flex: 1 }
+.help-body p { font-size: 13px; color: var(--t2); line-height: 1.65; margin: 0 0 10px }
+.help-body em { color: var(--t1); font-style: normal }
+.hs { padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid var(--br) }
+.hs:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0 }
+.hs h2 { font-size: 14px; font-weight: 600; color: var(--t1); margin: 0 0 12px }
+.hs h3 { font-size: 12px; font-weight: 600; color: var(--ah); text-transform: uppercase; letter-spacing: .6px; margin: 16px 0 8px }
+.h-table { width: 100%; border-collapse: collapse; margin-bottom: 10px }
+.h-table th { font-size: 11px; color: var(--t3); text-transform: uppercase; letter-spacing: .5px; text-align: left; padding: 4px 10px 6px; border-bottom: 1px solid var(--br) }
+.h-table td { font-size: 12px; color: var(--t2); padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,.03); vertical-align: top }
+.h-table td:first-child { white-space: nowrap; padding-right: 16px; color: var(--t1) }
+.h-table tr:last-child td { border-bottom: none }
+.h-tip { background: var(--ab); border-left: 3px solid var(--a); border-radius: 0 var(--rs) var(--rs) 0; padding: 10px 14px; font-size: 12px; color: var(--t2); line-height: 1.6; margin: 10px 0 }
+.h-tip strong { color: var(--ah) }
+.h-list { margin: 8px 0 10px 0; padding: 0; list-style: none }
+.h-list li { font-size: 12px; color: var(--t2); padding: 4px 0 4px 14px; position: relative; line-height: 1.5 }
+.h-list li::before { content: '—'; position: absolute; left: 0; color: var(--t3) }
+.h-list li strong { color: var(--t1) }
+.h-list li em { color: var(--t2); font-style: italic }
+.h-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; flex-shrink: 0 }
+.h-up   { color: #4ade80; font-weight: 700; font-family: var(--fm) }
+.h-down { color: #f87171; font-weight: 700; font-family: var(--fm) }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Tablet / Móvil grande (≤ 768px) ── */
+@media (max-width: 768px) {
+
+  /* Sidebar → barra de navegación inferior */
+  .sb {
+    position: fixed;
+    left: 0; right: 0; bottom: 0; top: auto;
+    width: 100%; height: 56px;
+    flex-direction: row;
+    padding: 0 10px;
+    border-right: none;
+    border-top: 1px solid var(--br);
+  }
+  .sb-logo { display: none }
+  .sb-nav  { flex-direction: row; flex: 1; justify-content: center; gap: 2px }
+  .sb-bot  { flex-direction: row; gap: 2px }
+  .uav     { display: none }
+
+  /* Main area: full width + espacio para la barra inferior */
+  .main { margin-left: 0; height: auto; min-height: 100vh; padding-bottom: 60px }
+
+  /* Topbar: título en primera línea, tabs y dots en segunda */
+  .topbar { padding: 10px 14px; gap: 8px; flex-wrap: wrap }
+  .tb-t   { flex: none; width: 100% }
+  .ptabs  { order: 1 }
+  .pdots  { order: 2; margin-left: auto }
+
+  /* Content */
+  .content { padding: 14px 12px }
+
+  /* Grids → una o dos columnas */
+  .kpi-g   { grid-template-columns: repeat(2, 1fr) }
+  .dev-g   { grid-template-columns: 1fr }
+  .crow    { grid-template-columns: 1fr }
+  .crow2   { grid-template-columns: 1fr }
+  .dd-kpis { grid-template-columns: repeat(3, 1fr) }
+
+  /* Valores KPI más compactos */
+  .k-val  { font-size: 20px }
+  .dd-val { font-size: 16px }
+
+  /* Tablas con scroll horizontal */
+  .tbl-wrap       { overflow-x: auto; -webkit-overflow-scrolling: touch }
+  .tbl            { min-width: 500px }
+  .adm-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch }
+  .adm-table      { min-width: 540px }
+  .adm-wrap       { padding: 14px }
+
+  /* Heatmap con scroll horizontal */
+  .hmap-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch }
+  .hmap-inner  { min-width: 560px }
+
+  /* Modales full-width */
+  .modal      { width: 95vw; max-width: none; padding: 20px }
+  .help-modal { width: 95vw; max-width: none }
+
+  /* Menú desplegable de DataTable no se sale de pantalla */
+  .dt-menu { right: 0; left: auto }
+
+  /* Admin header: apilar verticalmente */
+  .adm-header { flex-direction: column; gap: 10px }
+  .adm-save-btn { align-self: flex-start }
+}
+
+/* ── Móvil pequeño (≤ 480px) ── */
+@media (max-width: 480px) {
+
+  /* KPI 2×2 */
+  .kpi-g   { grid-template-columns: repeat(2, 1fr); gap: 8px }
+  .dd-kpis { grid-template-columns: repeat(2, 1fr); gap: 8px }
+
+  /* Ocultar palette dots (se cambia desde Configuración) */
+  .pdots { display: none }
+
+  /* Topbar compacto */
+  .topbar { padding: 8px 12px }
+  .tb-t h2 { font-size: 13px }
+  .tb-t p  { display: none }
+  .pt { padding: 5px 9px; font-size: 11px }
+
+  /* Cards con menos padding */
+  .dc { padding: 12px }
+  .cc { padding: 12px }
+
+  /* Dev tabs más compactos */
+  .dtabs { gap: 4px }
+  .dtab  { padding: 6px 10px; font-size: 12px }
+
+  /* Valores KPI */
+  .k-val  { font-size: 18px }
+  .dd-val { font-size: 15px }
+
+  /* Botones de tabla menores */
+  .tbl-head { flex-wrap: wrap; gap: 8px }
+  .tbl th, .tbl td { padding: 8px 12px; font-size: 11px }
+
+  /* Help modal: cuerpo con menos padding */
+  .help-body { padding: 16px }
+  .h-table td, .h-table th { padding: 6px 8px }
+}

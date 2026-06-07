@@ -2,8 +2,11 @@
   "name": "ai-monitor",
   "private": true,
   "workspaces": ["server", "client"],
+  "engines": { "node": ">=18" },
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
+    "build": "npm install --workspace=client --include=dev && npm run build --workspace=client",
+    "start": "node server/index.js",
     "install:all": "npm install && npm install --workspace=server && npm install --workspace=client"
   },
   "devDependencies": {

@@ -6,6 +6,7 @@ import Developers from './developers/Developers';
 import Activity from './activity/Activity';
 import DevelopersAdmin from './admin/DevelopersAdmin';
 import SettingsModal from './shared/SettingsModal';
+import HelpModal from './shared/HelpModal';
 import { useConfig } from '../hooks/useConfig';
 import { useDashboard } from '../hooks/useDashboard';
 import type { View, Period } from '../types/dashboard';
@@ -16,6 +17,7 @@ export default function Dashboard({ user, onLogout }: Props) {
   const [view, setView]           = useState<View>('overview');
   const [period, setPeriod]       = useState<Period>('week');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [helpOpen,     setHelpOpen]     = useState(false);
   const { config, save }          = useConfig();
   const { data, sessions, heatmap, devs, history, loading } = useDashboard(period, user);
 
@@ -25,7 +27,7 @@ export default function Dashboard({ user, onLogout }: Props) {
 
   return (
     <div className="app-wrap">
-      <Sidebar view={view} onView={setView} onSettings={() => setSettingsOpen(true)} user={user} onLogout={onLogout} />
+      <Sidebar view={view} onView={setView} onSettings={() => setSettingsOpen(true)} onHelp={() => setHelpOpen(true)} user={user} onLogout={onLogout} />
       <div className="main">
         <Topbar
           view={view}
@@ -45,6 +47,7 @@ export default function Dashboard({ user, onLogout }: Props) {
       {settingsOpen && (
         <SettingsModal config={config} devs={devs} onSave={save} onClose={() => setSettingsOpen(false)} />
       )}
+      {helpOpen && <HelpModal onClose={() => setHelpOpen(false)} />}
     </div>
   );
 }

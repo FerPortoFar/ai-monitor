@@ -99,20 +99,22 @@ export default function Activity({ data, sessions, heatmap, devs, loading }: Pro
             <span style={{ fontSize: 10, color: 'var(--t3)' }}>Alto</span>
           </div>
         </div>
-        <div>
-          {heatmap.map((row, ri) => (
-            <div key={ri} className="hmap-row">
-              <span className="hmap-day">{row.day}</span>
-              <div className="hmap-cells">
-                {row.v.map((v, ci) => {
-                  const op = v === 0 ? 1 : Math.max(0.12, Math.min(0.95, 0.12 + (v / maxV) * 0.83));
-                  return <div key={ci} className="hmap-cell" title={`${v} actividad`} style={v === 0 ? { background: 'var(--bg2)' } : { background: 'var(--a)', opacity: op }} />;
-                })}
+        <div className="hmap-scroll">
+          <div className="hmap-inner">
+            {heatmap.map((row, ri) => (
+              <div key={ri} className="hmap-row">
+                <span className="hmap-day">{row.day}</span>
+                <div className="hmap-cells">
+                  {row.v.map((v, ci) => {
+                    const op = v === 0 ? 1 : Math.max(0.12, Math.min(0.95, 0.12 + (v / maxV) * 0.83));
+                    return <div key={ci} className="hmap-cell" title={`${v} actividad`} style={v === 0 ? { background: 'var(--bg2)' } : { background: 'var(--a)', opacity: op }} />;
+                  })}
+                </div>
               </div>
+            ))}
+            <div className="hmap-hours">
+              {hourLabels.map((l, i) => <div key={i} className="hmap-hour">{l}</div>)}
             </div>
-          ))}
-          <div className="hmap-hours">
-            {hourLabels.map((l, i) => <div key={i} className="hmap-hour">{l}</div>)}
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ interface Props {
   view: View;
   onView: (v: View) => void;
   onSettings: () => void;
+  onHelp: () => void;
   onLogout: () => void;
   user: string;
 }
@@ -13,7 +14,7 @@ function inits(name: string) {
   return p.length >= 2 ? (p[0][0] + p[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
 }
 
-export default function Sidebar({ view, onView, onSettings, onLogout, user }: Props) {
+export default function Sidebar({ view, onView, onSettings, onHelp, onLogout, user }: Props) {
   return (
     <div className="sb">
       <div className="sb-logo">
@@ -51,6 +52,13 @@ export default function Sidebar({ view, onView, onSettings, onLogout, user }: Pr
         </button>
       </div>
       <div className="sb-bot">
+        <button className="ib" title="Ayuda / Manual de usuario" onClick={onHelp}>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+            <circle cx="10" cy="10" r="8"/>
+            <path d="M7.5 7.5a2.5 2.5 0 0 1 4.87.83c0 1.67-2.5 2.5-2.5 2.5"/>
+            <circle cx="10" cy="14.5" r=".6" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
         <button className="ib" title="Configuración" onClick={onSettings}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
             <circle cx="10" cy="10" r="2.5"/>
