@@ -36,11 +36,7 @@ export default function Overview({ data, history, period, config, devs, loading 
         <TokenComparisonChart data={data} activeDevs={activeDevs} activeIndices={active} />
         <ModelUsageChart data={data} />
       </div>
-      {history && (
-        <div className="crow">
-          <CostHistoryChart history={history} activeDevs={activeDevs} />
-        </div>
-      )}
+      {history && <CostHistoryChart history={history} activeDevs={activeDevs} />}
       <RadarChart data={data} activeDevs={activeDevs} activeIndices={active} />
       <ProjectsTable data={data} activeDevs={activeDevs} activeIndices={active} />
     </>
