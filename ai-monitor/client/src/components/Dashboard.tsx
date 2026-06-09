@@ -5,6 +5,7 @@ import Overview from './overview/Overview';
 import Developers from './developers/Developers';
 import Activity from './activity/Activity';
 import DevelopersAdmin from './admin/DevelopersAdmin';
+import Insights from './insights/Insights';
 import SettingsModal from './shared/SettingsModal';
 import HelpModal from './shared/HelpModal';
 import { useConfig } from '../hooks/useConfig';
@@ -42,6 +43,7 @@ export default function Dashboard({ user, onLogout }: Props) {
           {view === 'developers'  && <Developers data={data} sessions={sessions} config={config} devs={devs} loading={loading} />}
           {view === 'activity'    && <Activity data={data} sessions={sessions} heatmap={heatmap} config={config} devs={devs} loading={loading} />}
           {view === 'admin'       && <DevelopersAdmin />}
+          {view === 'insights'   && <Insights config={config} devs={devs} />}
         </div>
       </div>
       {settingsOpen && (

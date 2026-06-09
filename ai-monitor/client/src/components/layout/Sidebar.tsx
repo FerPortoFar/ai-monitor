@@ -44,6 +44,13 @@ export default function Sidebar({ view, onView, onSettings, onHelp, onLogout, us
             <polyline points="2,15 6,9 9,12 13,7 18,11"/>
           </svg>
         </button>
+        <button className={`ib${view === 'insights' ? ' on' : ''}`} title="Análisis IA" onClick={() => onView('insights')}>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2z"/>
+            <path d="M10 6v4l3 3"/>
+            <circle cx="10" cy="10" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
         <button className={`ib${view === 'admin' ? ' on' : ''}`} title="Gestión de desarrolladores" onClick={() => onView('admin')}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
             <circle cx="8" cy="7" r="3"/><path d="M2 17c0-3 2.7-5 6-5s6 2 6 5"/>

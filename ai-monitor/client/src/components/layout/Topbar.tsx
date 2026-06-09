@@ -13,6 +13,7 @@ const VIEW_LABELS: Record<View, string> = {
   developers:   'Desarrolladores',
   activity:     'Actividad del equipo',
   admin:        'Gestión de Agentes',
+  insights:     'Análisis IA',
 };
 
 const PERIOD_LABELS: Record<Period, string> = {

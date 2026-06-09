@@ -84,4 +84,4 @@ export interface DashboardConfig {
 export const DEV_PALETTE = ['#818cf8','#fbbf24','#38bdf8','#34d399','#f87171','#fb923c','#a78bfa','#f472b6'];
 
 export type Period = 'today' | 'week' | 'month';
-export type View = 'overview' | 'developers' | 'activity' | 'admin';
+export type View = 'overview' | 'developers' | 'activity' | 'admin' | 'insights';

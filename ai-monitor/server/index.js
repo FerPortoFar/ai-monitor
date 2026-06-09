@@ -12,6 +12,7 @@ import developersRouter from './routes/developers.js';
 import agentsRouter from './routes/agents.js';
 import uploadRouter from './routes/upload.js';
 import pricesRouter from './routes/prices.js';
+import analysisRouter from './routes/analysis.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -65,6 +66,7 @@ app.use('/api/developers', developersRouter);
 app.use('/api/agents', agentsRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/prices', pricesRouter);
+app.use('/api/analysis', analysisRouter);
 
 if (IS_PROD) {
   app.use(express.static(join(__dirname, '../client/dist')));
