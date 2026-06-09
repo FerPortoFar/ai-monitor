@@ -17,8 +17,11 @@ interface DevAnalysis {
   consistencyScore?: number;
   avgOutputPerSession?: number;
   totalCost?: number;
+  costPerSession?: number;
   debugRatio?: number;
+  avgDebugComplexity?: number;
   taskDiversityScore?: number;
+  taskTypes?: number;
   topTask?: string;
   projects?: number;
 }
@@ -35,7 +38,22 @@ interface AnalysisResult {
   devMetrics?: DevAnalysis[];
 }
 
-interface Props { config: DashboardConfig; devs: Developer[] }
+interface Props { config: DashboardConfig; devs: Developer[]; isDemo: boolean }
+
+const DEMO_RESULT: AnalysisResult = {
+  generatedAt: new Date().toISOString(),
+  isDemo: true,
+  team: {
+    summary: 'El equipo registró 20 sesiones demo con un costo total de $10.47. Dev 1 lidera en productividad con 3.2 sesiones/día y una consistencia del 72%. La brecha entre el dev de mayor y menor score es de 28 puntos, lo que indica adopción desigual que conviene nivelar. La tarea más frecuente es Código.',
+    strengths: ['Diversidad de tipos de tarea en todo el equipo', 'Dev 1 muestra consistencia destacada en uso diario', 'Uso de modelos adecuados según complejidad de tarea'],
+    recommendations: ['Que Dev 1 comparta su metodología con Dev 3 para reducir la brecha', 'Implementar revisión de código con IA antes de cada PR', 'Medir si las sesiones se traducen en commits y features entregadas'],
+  },
+  developers: [
+    { name: 'Dev 1', color: '#818cf8', productivityScore: 78, problemSolvingScore: 62, total: 8, activeDays: 6, sessionsPerDay: 3.2, consistencyScore: 72, totalCost: 4.51, costPerSession: 0.56, debugRatio: 25, avgDebugComplexity: 4200, taskDiversityScore: 80, topTask: 'Código', projects: 4, analysis: 'Dev 1 muestra un perfil de alto volumen. Con 3.2 sesiones/día es el más activo del equipo. El 25% de sus sesiones son de debug. Su costo por sesión está dentro del promedio.', strengths: ['Mayor volumen de output del equipo', 'Consistencia diaria destacada (72%)'], weaknesses: ['Ratio de revisión de código bajo'], recommendation: 'Destinar el 20% de sesiones a revisión de código propio antes de hacer commit para reducir el ciclo de debug.' },
+    { name: 'Dev 2', color: '#fbbf24', productivityScore: 64, problemSolvingScore: 82, total: 7, activeDays: 5, sessionsPerDay: 2.4, consistencyScore: 58, totalCost: 5.44, costPerSession: 0.77, debugRatio: 43, avgDebugComplexity: 7800, taskDiversityScore: 100, topTask: 'Debug', projects: 3, analysis: 'Dev 2 muestra un perfil de resolución de problemas. Sus sesiones de debug son las más complejas del equipo. Alta diversidad de tipos de tarea. Costo por sesión por encima del promedio.', strengths: ['Mayor profundidad en resolución de bugs', 'Alta diversidad de tareas (5 tipos)'], weaknesses: ['Costo por sesión elevado vs el promedio'], recommendation: 'Reducir el tamaño del contexto enviado. Prompts más focalizados bajan el costo y mejoran la calidad.' },
+    { name: 'Dev 3', color: '#38bdf8', productivityScore: 50, problemSolvingScore: 65, total: 5, activeDays: 3, sessionsPerDay: 1.8, consistencyScore: 38, totalCost: 0.52, costPerSession: 0.10, debugRatio: 20, avgDebugComplexity: 2100, taskDiversityScore: 60, topTask: 'Explicación', projects: 2, analysis: 'Dev 3 muestra un perfil en desarrollo. El promedio de 1.8 sesiones/día indica uso esporádico con margen de crecimiento. Solo activo 3 de los 30 días del período.', strengths: ['Mejor costo/valor del equipo', 'Bajo ratio de debug (20%)'], weaknesses: ['Baja consistencia diaria — solo activo 3 días del período', 'Uso concentrado en pocos proyectos'], recommendation: 'Establecer mínimo 3 sesiones de IA por día hábil para construir el hábito y el contexto acumulado.' },
+  ],
+};
 
 function ScoreBar({ value, color }: { value: number; color: string }) {
   return (
@@ -144,7 +162,7 @@ function DevCard({ dev }: { dev: DevAnalysis }) {
   );
 }
 
-export default function Insights({ config }: Props) {
+export default function Insights({ config, isDemo }: Props) {
   const [result, setResult]   = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
@@ -152,6 +170,11 @@ export default function Insights({ config }: Props) {
   const serverUrl = config.serverUrl || 'http://localhost:3001';
 
   async function fetchAnalysis(force = false) {
+    if (isDemo) {
+      setResult(DEMO_RESULT);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -160,13 +183,13 @@ export default function Insights({ config }: Props) {
       if (!res.ok) throw new Error(`${res.status}`);
       const data = await res.json();
       setResult(data);
-    } catch (e: any) {
+    } catch {
       setError('No se pudo cargar el análisis. Verificá que el servidor esté corriendo.');
     }
     setLoading(false);
   }
 
-  useEffect(() => { fetchAnalysis(); }, []);
+  useEffect(() => { fetchAnalysis(); }, [isDemo]);
 
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 300, gap: 12 }}>

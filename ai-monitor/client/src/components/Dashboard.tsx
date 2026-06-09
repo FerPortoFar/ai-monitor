@@ -43,7 +43,7 @@ export default function Dashboard({ user, onLogout }: Props) {
           {view === 'developers'  && <Developers data={data} sessions={sessions} config={config} devs={devs} loading={loading} />}
           {view === 'activity'    && <Activity data={data} sessions={sessions} heatmap={heatmap} config={config} devs={devs} loading={loading} />}
           {view === 'admin'       && <DevelopersAdmin />}
-          {view === 'insights'   && <Insights config={config} devs={devs} />}
+          {view === 'insights'   && <Insights config={config} devs={devs} isDemo={user === 'Demo'} />}
         </div>
       </div>
       {settingsOpen && (
