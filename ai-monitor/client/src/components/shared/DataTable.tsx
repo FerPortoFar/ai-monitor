@@ -33,7 +33,13 @@ function savePref(key: string | undefined, val: any) {
 export default function DataTable<T>({ title, subtitle, columns, data, storageKey }: Props<T>) {
   const saved = loadPref(storageKey, columns);
 
-  const [order,      setOrder]      = useState<string[]>(() => saved?.order || columns.map(c => c.key));
+  const [order,      setOrder]      = useState<string[]>(() => {
+    const savedOrder: string[] = saved?.order || [];
+    const allKeys = columns.map(c => c.key);
+    // Columnas nuevas que no estaban en el orden guardado → agregar al final
+    const newKeys = allKeys.filter(k => !savedOrder.includes(k));
+    return savedOrder.length > 0 ? [...savedOrder, ...newKeys] : allKeys;
+  });
   const [hidden,     setHidden]     = useState<Set<string>>(() => new Set(saved?.hidden || columns.filter(c => c.hidden).map(c => c.key)));
   const [sortKey,    setSortKey]    = useState<string | null>(saved?.sortKey || null);
   const [sortDir,    setSortDir]    = useState<SortDir>(saved?.sortDir || 'asc');
