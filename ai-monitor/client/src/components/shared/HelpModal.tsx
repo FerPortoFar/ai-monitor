@@ -26,7 +26,7 @@ export default function HelpModal({ onClose }: Props) {
                 gracious-liberation-production-43da.up.railway.app
               </a>
               <br />
-              <span style={{ marginTop: 4, display: 'block' }}><strong>Demo:</strong> clic en "Modo demo →" · <strong>Login:</strong> usuario <code style={{ background: 'var(--bg2)', padding: '1px 5px', borderRadius: 4, fontFamily: 'var(--fm)' }}>MonitorIA</code> / contraseña <code style={{ background: 'var(--bg2)', padding: '1px 5px', borderRadius: 4, fontFamily: 'var(--fm)' }}>MIA</code> + año + (mes + 1)</span>
+              <span style={{ marginTop: 4, display: 'block' }}><strong>Demo:</strong> clic en "Modo demo →" para explorar el panel sin credenciales.</span>
             </div>
             <div className="h-tip" style={{ marginTop: 8 }}>
               <strong>Dato clave:</strong> los datos llegan automáticamente desde el agente instalado en cada máquina, sin que el dev tenga que hacer nada.
