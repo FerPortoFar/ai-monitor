@@ -237,6 +237,9 @@ export default function HelpModal({ onClose }: Props) {
             <p>Podés editar el <strong>alias</strong> (nombre que aparece en el dashboard) y el <strong>color</strong> de cada dev. Si eliminás un agente se borran también sus estadísticas.</p>
           </section>
 
+          <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--br)', textAlign: 'center', fontSize: 11, color: 'var(--t3)' }}>
+            Creado por <span style={{ color: 'var(--t2)', fontWeight: 600 }}>Fernando Ribeiro</span>
+          </div>
         </div>
       </div>
     </div>

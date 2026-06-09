@@ -77,7 +77,8 @@ export default function Sidebar({ view, onView, onSettings, onHelp, onLogout, us
             <path d="M13 3h4v14h-4"/><polyline points="8 14 13 10 8 6"/><line x1="13" y1="10" x2="3" y2="10"/>
           </svg>
         </button>
-        <div className="uav">{inits(user)}</div>
+        <div className="uav" title={user}>{inits(user)}</div>
+        <div title="Creado por Fernando Ribeiro" style={{ fontSize: 9, color: 'var(--t3)', textAlign: 'center', lineHeight: 1.3, padding: '4px 0', letterSpacing: '.3px' }}>FR</div>
       </div>
     </div>
   );

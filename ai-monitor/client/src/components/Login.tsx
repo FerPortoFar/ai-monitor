@@ -101,6 +101,9 @@ export default function Login({ onLogin, teamName }: Props) {
         </div>
         <button className="btn-pri" onClick={handleLogin} disabled={loading}>{loading ? 'Verificando...' : 'Entrar al panel'}</button>
         <div className="lfoot">¿Solo explorar? <a onClick={() => onLogin('Demo')}>Modo demo →</a></div>
+        <div style={{ marginTop: 24, textAlign: 'center', fontSize: 11, color: 'var(--t3)', borderTop: '1px solid var(--br)', paddingTop: 16 }}>
+          Creado por <span style={{ color: 'var(--t2)', fontWeight: 600 }}>Fernando Ribeiro</span>
+        </div>
       </div>
     </div>
   );
