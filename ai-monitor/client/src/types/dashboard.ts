@@ -42,6 +42,8 @@ export interface Session {
   inputTokens: number;
   outputTokens: number;
   costUSD: number;
+  prompt?: string;
+  source?: 'claude-code' | 'web' | string;
 }
 
 export interface HeatmapRow {

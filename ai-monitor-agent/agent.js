@@ -228,6 +228,8 @@ function generateStats(claudeDir) {
           inputTokens: sessInput,
           outputTokens: sessOutput,
           costUSD:     calcCost(sessModel, sessInput, sessOutput),
+          prompt:      sessUserMsg.slice(0, 200).replace(/\n+/g, ' ').trim(),
+          source:      'claude-code',
         });
       }
     }

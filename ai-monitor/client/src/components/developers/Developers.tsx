@@ -161,6 +161,14 @@ function DevDetail({ data, sessions, devs, devIdx, localIdx }: { data: PeriodDat
             render: s => <span style={{ color: 'var(--t2)', fontFamily: 'var(--fm)' }}>{s.ts}</span>, printVal: s => s.ts },
           { key: 'task',        label: 'Tarea',   sortVal: s => s.task,
             render: s => <span className="tag" style={{ background: (TASK_COLORS[s.task]||'#818cf8')+'18', color: TASK_COLORS[s.task]||'#818cf8' }}>{s.task}</span>, printVal: s => s.task },
+          { key: 'prompt',      label: 'Solicitud', sortVal: s => s.prompt || '',
+            render: s => s.prompt
+              ? <span title={s.prompt} style={{ color:'var(--t2)', fontSize:11, cursor:'default', display:'block', maxWidth:240, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                  {s.source === 'claude-code' && <span title="Claude Code CLI" style={{ display:'inline-block', marginRight:5, fontSize:9, fontFamily:'var(--fm)', padding:'1px 4px', borderRadius:3, background:'rgba(99,102,241,0.15)', color:'#818cf8' }}>CC</span>}
+                  {s.prompt.slice(0, 70)}{s.prompt.length > 70 ? '…' : ''}
+                </span>
+              : <span style={{ color:'var(--t3)', fontSize:11 }}>—</span>,
+            printVal: s => s.prompt || '' },
           { key: 'model',       label: 'Modelo',  sortVal: s => s.model,
             render: s => <span style={{ color: 'var(--t2)' }}>{s.model}</span>, printVal: s => s.model },
           { key: 'inputTokens', label: 'Input',   align: 'right', sortVal: s => s.inputTokens,
