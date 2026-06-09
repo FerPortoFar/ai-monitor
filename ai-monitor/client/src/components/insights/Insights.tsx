@@ -155,21 +155,10 @@ export default function Insights({ config }: Props) {
     setLoading(true);
     setError('');
     try {
-      if (force) {
-        await fetch(`${serverUrl}/api/analysis/cache`, { method: 'DELETE', credentials: 'include' });
-      }
-      const res = await fetch(`${serverUrl}/api/analysis`, { credentials: 'include' });
+      const url = `${serverUrl}/api/analysis${force ? '?force=1' : ''}`;
+      const res = await fetch(url, { credentials: 'include' });
       if (!res.ok) throw new Error(`${res.status}`);
       const data = await res.json();
-
-      // Combinar devMetrics (datos crudos) con developers (análisis IA)
-      if (data.devMetrics && data.developers) {
-        data.developers = data.developers.map((d: DevAnalysis, i: number) => ({
-          ...data.devMetrics[i],
-          ...d,
-          color: data.devMetrics[i]?.color || d.color,
-        }));
-      }
       setResult(data);
     } catch (e: any) {
       setError('No se pudo cargar el análisis. Verificá que el servidor esté corriendo.');
