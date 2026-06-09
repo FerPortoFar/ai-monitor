@@ -1,6 +1,7 @@
 import type { PeriodData, Developer } from '../../types/dashboard';
 
-const RC = ['#fbbf24', '#94a3b8', '#cd8c52'];
+const RC = ['#fbbf24', '#94a3b8', '#cd8c52']; // 1°oro 2°plata 3°bronce
+function rankColor(rank: number) { return RC[rank - 1] || '#3d5268'; }
 
 function fT(n: number) { return n >= 1e6 ? (n/1e6).toFixed(2)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n); }
 function fC(n: number) { return '$'+n.toFixed(2); }
@@ -81,7 +82,7 @@ export default function DeveloperCards({ data, activeDevs, activeIndices, period
                   )}
                 </p>
               </div>
-              <div className="drank" style={{ background: `${RC[rank-1] || RC[2]}18`, color: RC[rank-1] || RC[2] }}>#{rank}</div>
+              <div className="drank" style={{ background: `${rankColor(rank)}18`, color: rankColor(rank) }}>#{rank}</div>
             </div>
 
             <div className="tbar">

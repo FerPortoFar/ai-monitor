@@ -83,7 +83,7 @@ body { overflow-x: hidden; max-width: 100vw }
 .k-ico { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--a); opacity: .12 }
 
 /* ── DEV CARDS ── */
-.dev-g { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 14px }
+.dev-g { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin-bottom: 14px }
 .dc { background: var(--bg1); border: 1px solid var(--br); border-radius: var(--r); padding: 18px; transition: border-color .2s, box-shadow .2s }
 .dc:hover { border-color: var(--abr); box-shadow: 0 4px 24px rgba(0,0,0,.3) }
 .dh { display: flex; align-items: center; gap: 10px; margin-bottom: 14px }
