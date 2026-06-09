@@ -176,6 +176,12 @@ export default function HelpModal({ onClose }: Props) {
 
             <h3>Log de sesiones</h3>
             <p>Tabla con las últimas 300 sesiones del equipo ordenadas por fecha. Cada fila es una conversación completa con Claude Code. Las columnas son sortables y se pueden ocultar. Podés exportar a CSV para análisis externo.</p>
+            <table className="h-table">
+              <tbody>
+                <tr><td><strong>Proyecto</strong></td><td>Nombre del proyecto donde se realizó la consulta, detectado automáticamente desde la ruta del archivo .jsonl.</td></tr>
+                <tr><td><strong>Solicitud</strong></td><td>Texto completo del primer mensaje enviado por el dev en esa sesión. El badge <span style={{fontSize:9,fontFamily:'var(--fm)',padding:'1px 4px',borderRadius:3,background:'rgba(99,102,241,0.15)',color:'#818cf8'}}>CC</span> indica que vino de Claude Code CLI.</td></tr>
+              </tbody>
+            </table>
           </section>
 
           {/* CONFIGURACION */}
@@ -221,6 +227,34 @@ export default function HelpModal({ onClose }: Props) {
               <li><strong>Imprimir:</strong> abre una ventana limpia lista para imprimir o guardar como PDF.</li>
             </ul>
             <p>Las preferencias de cada tabla (columnas visibles, orden, sort) se guardan automáticamente en el navegador.</p>
+          </section>
+
+          {/* ANÁLISIS IA */}
+          <section className="hs">
+            <h2>🔍 Análisis IA</h2>
+            <p>Vista accesible desde el ícono de reloj en el sidebar. Genera automáticamente un diagnóstico completo del equipo y de cada desarrollador, basado exclusivamente en los datos capturados por el agente. No requiere configuración adicional.</p>
+
+            <h3>Diagnóstico del equipo</h3>
+            <p>Resumen del estado general del equipo: quién lidera, brechas entre miembros, patrones de uso colectivo, fortalezas y recomendaciones accionables.</p>
+
+            <h3>Ranking — uso efectivo de IA</h3>
+            <p>Ordena a los devs por el score combinado (Productividad + Resolución de problemas). El dev con mayor promedio aparece en primer lugar con 🥇.</p>
+
+            <h3>Cards individuales</h3>
+            <table className="h-table">
+              <tbody>
+                <tr><td><strong>Score Productividad</strong></td><td>Combina sesiones por día, consistencia diaria y volumen de output por sesión. Refleja qué tan activo y constante es el dev con la IA.</td></tr>
+                <tr><td><strong>Score Resolución</strong></td><td>Combina diversidad de tipos de tarea, complejidad promedio de sesiones de debug y ratio de debug sobre el total. Refleja la capacidad del dev para usar la IA en problemas complejos.</td></tr>
+                <tr><td><strong>Métricas crudas</strong></td><td>Sesiones totales, días activos, sesiones/día, costo total, % debug y consistencia.</td></tr>
+                <tr><td><strong>Fortalezas ▲</strong></td><td>Aspectos donde el dev destaca respecto al equipo.</td></tr>
+                <tr><td><strong>Áreas de mejora ▼</strong></td><td>Aspectos donde hay margen de crecimiento.</td></tr>
+                <tr><td><strong>Recomendación</strong></td><td>Acción concreta y medible para mejorar el uso de IA en los próximos 30 días.</td></tr>
+              </tbody>
+            </table>
+
+            <div className="h-tip">
+              <strong>Botón Regenerar:</strong> fuerza un nuevo cálculo ignorando el caché. El análisis se actualiza automáticamente cada 30 minutos.
+            </div>
           </section>
 
           {/* AGENTES */}
